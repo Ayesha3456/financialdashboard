@@ -421,7 +421,7 @@ export class DashboardComponent implements AfterViewInit, OnChanges {
     return COLORS[cat] || '#aaa';
   }
 
-  onDescriptionChange(value: string) {
+onDescriptionChange(value: string) {
   if (!value) {
     this.form.description = '';
     return;
@@ -432,7 +432,7 @@ export class DashboardComponent implements AfterViewInit, OnChanges {
 
 onEditDescriptionChange(value: string) {
   if (!this.editing) return;
-  
+
   if (!value) {
     this.editing.description = '';
     return;

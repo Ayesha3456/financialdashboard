@@ -1,272 +1,287 @@
 @if (fs.selectedCategory()) {
-<div class="active-filter">
-  <span>
-    Category filter: <strong>{{ fs.selectedCategory() }}</strong>
-  </span>
-  <button type="button" (click)="fs.clearCategoryFilter()">
-    Remove Filter
-  </button>
-</div>
+  <div class="active-filter">
+    <span>
+      Category filter: <strong>{{ fs.selectedCategory() }}</strong>
+    </span>
+    <button type="button" (click)="fs.clearCategoryFilter()">
+      Remove Filter
+    </button>
+  </div>
 }
 
 @if (page === 'overview') {
-<div class="cards">
-  <div class="card green">
-    <div class="lbl">Total Balance</div>
-    <div class="val">{{ fmt(fs.totalBalance()) }}</div>
-    <div class="sub">
-      Savings rate:
-      {{ fs.totalIncome() > 0 ? ((fs.totalBalance() / fs.totalIncome() * 100) | number:'1.0-0') : 0 }}%
+  <div class="cards">
+    <div class="card green">
+      <div class="lbl">Total Balance</div>
+      <div class="val">{{ fmt(fs.totalBalance()) }}</div>
+      <div class="sub">
+        Savings rate:
+        {{ fs.totalIncome() > 0 ? ((fs.totalBalance() / fs.totalIncome() * 100) | number:'1.0-0') : 0 }}%
+      </div>
+    </div>
+
+    <div class="card blue">
+      <div class="lbl">Income</div>
+      <div class="val">{{ fmt(fs.totalIncome()) }}</div>
+      <div class="sub">{{ fs.filtered().length }} filtered transactions</div>
+    </div>
+
+    <div class="card red">
+      <div class="lbl">Expenses</div>
+      <div class="val">{{ fmt(fs.totalExpense()) }}</div>
+      <div class="sub">Across visible categories</div>
     </div>
   </div>
 
-  <div class="card blue">
-    <div class="lbl">Income</div>
-    <div class="val">{{ fmt(fs.totalIncome()) }}</div>
-    <div class="sub">{{ fs.filtered().length }} filtered transactions</div>
-  </div>
+  <div class="row2">
+    <div class="box wide">
+      <div class="box-title">Balance Trend</div>
+      <div #lineRef class="chart-area"></div>
+    </div>
 
-  <div class="card red">
-    <div class="lbl">Expenses</div>
-    <div class="val">{{ fmt(fs.totalExpense()) }}</div>
-    <div class="sub">Across visible categories</div>
-  </div>
-</div>
+    <div class="box">
+      <div class="box-title">Spending Breakdown</div>
+      <div #donutRef class="donut-area"></div>
 
-<div class="row2">
-  <div class="box wide">
-    <div class="box-title">Balance Trend</div>
-    <div #lineRef class="chart-area"></div>
-  </div>
-
-  <div class="box">
-    <div class="box-title">Spending Breakdown</div>
-    <div #donutRef class="donut-area"></div>
-
-    <div class="legend">
-      @for (cat of fs.allCategories(); track cat) {
-      <span class="leg-item">
-        <span class="dot" [style.background]="color(cat)"></span>{{ cat }}
-      </span>
-      }
+      <div class="legend">
+        @for (cat of fs.allCategories(); track cat) {
+          <span class="leg-item">
+            <span class="dot" [style.background]="color(cat)"></span>{{ cat }}
+          </span>
+        }
+      </div>
     </div>
   </div>
-</div>
 
-<div class="sec-title">Recent Transactions</div>
-<div class="tbl-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Category</th>
-        <th>Type</th>
-        <th class="r">Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (t of fs.filtered().slice(0, 8); track t.id) {
-      <tr>
-        <td class="sm grey">{{ fmtDate(t.date) }}</td>
-        <td>{{ t.description }}</td>
-        <td>
-          <span class="chip" [style.background]="color(t.category) + '20'" [style.color]="color(t.category)">
-            {{ t.category }}
-          </span>
-        </td>
-        <td><span class="badge" [class]="t.type">{{ t.type }}</span></td>
-        <td class="r">
-          <span class="amt" [class]="t.type">
-            {{ t.type === 'income' ? '+' : '-' }}{{ fmt(t.amount) }}
-          </span>
-        </td>
-      </tr>
-      }
-    </tbody>
-  </table>
-</div>
+  <div class="sec-title">Recent Transactions</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th class="r">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of fs.filtered().slice(0, 8); track t.id) {
+          <tr>
+            <td class="sm grey">{{ fmtDate(t.date) }}</td>
+            <td>{{ t.description }}</td>
+            <td>
+              <span class="chip" [style.background]="color(t.category) + '20'" [style.color]="color(t.category)">
+                {{ t.category }}
+              </span>
+            </td>
+            <td><span class="badge" [class]="t.type">{{ t.type }}</span></td>
+            <td class="r">
+              <span class="amt" [class]="t.type">
+                {{ t.type === 'income' ? '+' : '-' }}{{ fmt(t.amount) }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 }
 
 @if (page === 'transactions') {
-@if (fs.userRole() === 'Admin') {
-<div class="add-box">
-  <div class="box-title">Add Transaction</div>
-  <div class="frow">
-    <div class="fg">
-      <label>Description</label>
-      <input type="text" [ngModel]="form.description" (ngModelChange)="onDescriptionChange($event)"
-        placeholder="e.g. Grocery run">
-    </div>
+  @if (fs.userRole() === 'Admin') {
+    <div class="add-box">
+      <div class="box-title">Add Transaction</div>
+      <div class="frow">
+        <div class="fg">
+          <label>Description</label>
+          <input
+            type="text"
+            [ngModel]="form.description"
+            (ngModelChange)="onDescriptionChange($event)"
+            placeholder="e.g. Grocery run"
+          >
+        </div>
 
-    <div class="fg">
-      <label>Amount ($)</label>
-      <input type="number" [(ngModel)]="form.amount" min="0.01" step="0.01">
-    </div>
+        <div class="fg">
+          <label>Amount ($)</label>
+          <input type="number" [(ngModel)]="form.amount" min="0.01" step="0.01">
+        </div>
 
-    <div class="fg">
-      <label>Category</label>
-      <select [(ngModel)]="form.category">
-        @for (c of cats; track c) {
-        <option [value]="c">{{ c }}</option>
-        }
-      </select>
-    </div>
-
-    <div class="fg">
-      <label>Type</label>
-      <select [(ngModel)]="form.type">
-        <option value="expense">Expense</option>
-        <option value="income">Income</option>
-      </select>
-    </div>
-
-    <div class="fg">
-      <label>Date</label>
-      <input type="date" [(ngModel)]="form.date">
-    </div>
-
-    <button class="add-btn" (click)="submitAdd()">+ Add</button>
-  </div>
-</div>
-} @else {
-<div class="viewer-msg">Viewer mode — switch to Admin to add or edit transactions.</div>
-}
-
-<div class="filters">
-  <input type="text" placeholder="Search..." [ngModel]="fs.searchQuery()" (ngModelChange)="fs.searchQuery.set($event)">
-
-  <select [ngModel]="fs.filterType()" (ngModelChange)="fs.filterType.set($event)">
-    <option value="">All types</option>
-    <option value="income">Income</option>
-    <option value="expense">Expense</option>
-  </select>
-
-  <select [ngModel]="fs.filterCategory()" (ngModelChange)="fs.filterCategory.set($event)">
-    <option value="">All categories</option>
-    @for (c of fs.allCategories(); track c) {
-    <option [value]="c">{{ c }}</option>
-    }
-  </select>
-
-  <button class="ab" type="button" (click)="fs.clearAllFilters()">Clear All</button>
-</div>
-
-<div class="tbl-wrap">
-  @if (fs.filtered().length === 0) {
-  <div class="empty">No transactions found.</div>
-  } @else {
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Category</th>
-        <th>Type</th>
-        <th class="r">Amount</th>
-        @if (fs.userRole() === 'Admin') {
-        <th>Actions</th>
-        }
-      </tr>
-    </thead>
-
-    <tbody>
-      @for (t of fs.filtered(); track t.id) {
-      @if (!editing || editing.id !== t.id) {
-      <tr>
-        <td class="sm grey">{{ fmtDate(t.date) }}</td>
-        <td>{{ t.description }}</td>
-        <td>
-          <span class="chip" [style.background]="color(t.category) + '20'" [style.color]="color(t.category)">
-            {{ t.category }}
-          </span>
-        </td>
-        <td><span class="badge" [class]="t.type">{{ t.type }}</span></td>
-        <td class="r">
-          <span class="amt" [class]="t.type">
-            {{ t.type === 'income' ? '+' : '-' }}{{ fmt(t.amount) }}
-          </span>
-        </td>
-
-        @if (fs.userRole() === 'Admin') {
-        <td class="acts">
-          <button class="ab" (click)="startEdit(t)">Edit</button>
-          <button class="ab del" (click)="del(t.id)">Delete</button>
-        </td>
-        }
-      </tr>
-      } @else {
-      <tr class="edit-row">
-        <td><input type="date" [(ngModel)]="editing.date"></td>
-        <td><input type="text" [ngModel]="editing.description" (ngModelChange)="onEditDescriptionChange($event)"></td>
-        <td>
-          <select [(ngModel)]="editing.category">
+        <div class="fg">
+          <label>Category</label>
+          <select [(ngModel)]="form.category">
             @for (c of cats; track c) {
-            <option [value]="c">{{ c }}</option>
+              <option [value]="c">{{ c }}</option>
             }
           </select>
-        </td>
-        <td>
-          <select [(ngModel)]="editing.type">
-            <option value="income">Income</option>
+        </div>
+
+        <div class="fg">
+          <label>Type</label>
+          <select [(ngModel)]="form.type">
             <option value="expense">Expense</option>
+            <option value="income">Income</option>
           </select>
-        </td>
-        <td><input type="number" [(ngModel)]="editing.amount" style="width:90px"></td>
-        <td class="acts">
-          <button class="ab save" (click)="saveEdit()">Save</button>
-          <button class="ab" (click)="cancelEdit()">Cancel</button>
-        </td>
-      </tr>
-      }
-      }
-    </tbody>
-  </table>
+        </div>
+
+        <div class="fg">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="form.date">
+        </div>
+
+        <button class="add-btn" (click)="submitAdd()">+ Add</button>
+      </div>
+    </div>
+  } @else {
+    <div class="viewer-msg">Viewer mode — switch to Admin to add or edit transactions.</div>
   }
-</div>
+
+  <div class="filters">
+    <input
+      type="text"
+      placeholder="Search..."
+      [ngModel]="fs.searchQuery()"
+      (ngModelChange)="fs.searchQuery.set($event)"
+    >
+
+    <select [ngModel]="fs.filterType()" (ngModelChange)="fs.filterType.set($event)">
+      <option value="">All types</option>
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+
+    <select [ngModel]="fs.filterCategory()" (ngModelChange)="fs.filterCategory.set($event)">
+      <option value="">All categories</option>
+      @for (c of fs.allCategories(); track c) {
+        <option [value]="c">{{ c }}</option>
+      }
+    </select>
+
+    <button class="ab" type="button" (click)="fs.clearAllFilters()">Clear All</button>
+  </div>
+
+  <div class="tbl-wrap">
+    @if (fs.filtered().length === 0) {
+      <div class="empty">No transactions found.</div>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th class="r">Amount</th>
+            @if (fs.userRole() === 'Admin') {
+              <th>Actions</th>
+            }
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (t of fs.filtered(); track t.id) {
+            @if (!editing || editing.id !== t.id) {
+              <tr>
+                <td class="sm grey">{{ fmtDate(t.date) }}</td>
+                <td>{{ t.description }}</td>
+                <td>
+                  <span class="chip" [style.background]="color(t.category) + '20'" [style.color]="color(t.category)">
+                    {{ t.category }}
+                  </span>
+                </td>
+                <td><span class="badge" [class]="t.type">{{ t.type }}</span></td>
+                <td class="r">
+                  <span class="amt" [class]="t.type">
+                    {{ t.type === 'income' ? '+' : '-' }}{{ fmt(t.amount) }}
+                  </span>
+                </td>
+
+                @if (fs.userRole() === 'Admin') {
+                  <td class="acts">
+                    <button class="ab" (click)="startEdit(t)">Edit</button>
+                    <button class="ab del" (click)="del(t.id)">Delete</button>
+                  </td>
+                }
+              </tr>
+            } @else {
+              <tr class="edit-row">
+                <td><input type="date" [(ngModel)]="editing.date"></td>
+                <td>
+                  <input
+                    type="text"
+                    [ngModel]="editing.description"
+                    (ngModelChange)="onEditDescriptionChange($event)"
+                  >
+                </td>
+                <td>
+                  <select [(ngModel)]="editing.category">
+                    @for (c of cats; track c) {
+                      <option [value]="c">{{ c }}</option>
+                    }
+                  </select>
+                </td>
+                <td>
+                  <select [(ngModel)]="editing.type">
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                  </select>
+                </td>
+                <td><input type="number" [(ngModel)]="editing.amount" style="width: 90px"></td>
+                <td class="acts">
+                  <button class="ab save" (click)="saveEdit()">Save</button>
+                  <button class="ab" (click)="cancelEdit()">Cancel</button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    }
+  </div>
 }
 
 @if (page === 'insights') {
-<div class="cards">
-  <div class="card green">
-    <div class="lbl">Top Spend Category</div>
-    <div class="val">{{ topCat }}</div>
-    <div class="sub">{{ fmt(topCatAmt) }} total spent</div>
-  </div>
-
-  <div class="card blue">
-    <div class="lbl">Savings Rate</div>
-    <div class="val">{{ savingsRate }}%</div>
-    <div class="sub">of visible income saved</div>
-  </div>
-
-  <div class="card red">
-    <div class="lbl">Avg Transaction</div>
-    <div class="val">{{ fmt(avgTx) }}</div>
-    <div class="sub">across {{ fs.filtered().length }} visible transactions</div>
-  </div>
-</div>
-
-<div class="box" style="margin-bottom:16px">
-  <div class="box-title">Monthly Income vs Expenses</div>
-  <div class="bar-legend">
-    <span class="leg-item"><span class="dot" style="background:#16a37f"></span>Income</span>
-    <span class="leg-item"><span class="dot" style="background:#ef4444"></span>Expenses</span>
-  </div>
-  <div #barRef class="chart-area bar-area"></div>
-</div>
-
-<div class="box">
-  <div class="box-title">Monthly Net Balance</div>
-  <div class="month-grid">
-    @for (m of monthly; track m.label) {
-    <div class="mcell">
-      <div class="mc-lbl">{{ m.label }}</div>
-      <div class="mc-val" [style.color]="m.net >= 0 ? '#16a37f' : '#ef4444'">
-        {{ m.net >= 0 ? '+' : '' }}{{ fmt(m.net) }}
-      </div>
+  <div class="cards">
+    <div class="card green">
+      <div class="lbl">Top Spend Category</div>
+      <div class="val">{{ topCat }}</div>
+      <div class="sub">{{ fmt(topCatAmt) }} total spent</div>
     </div>
-    }
+
+    <div class="card blue">
+      <div class="lbl">Savings Rate</div>
+      <div class="val">{{ savingsRate }}%</div>
+      <div class="sub">of visible income saved</div>
+    </div>
+
+    <div class="card red">
+      <div class="lbl">Avg Transaction</div>
+      <div class="val">{{ fmt(avgTx) }}</div>
+      <div class="sub">across {{ fs.filtered().length }} visible transactions</div>
+    </div>
   </div>
-</div>
+
+  <div class="box" style="margin-bottom: 16px">
+    <div class="box-title">Monthly Income vs Expenses</div>
+    <div class="bar-legend">
+      <span class="leg-item"><span class="dot" style="background: #16a37f"></span>Income</span>
+      <span class="leg-item"><span class="dot" style="background: #ef4444"></span>Expenses</span>
+    </div>
+    <div #barRef class="chart-area bar-area"></div>
+  </div>
+
+  <div class="box">
+    <div class="box-title">Monthly Net Balance</div>
+    <div class="month-grid">
+      @for (m of monthly; track m.label) {
+        <div class="mcell">
+          <div class="mc-lbl">{{ m.label }}</div>
+          <div class="mc-val" [style.color]="m.net >= 0 ? '#16a37f' : '#ef4444'">
+            {{ m.net >= 0 ? '+' : '' }}{{ fmt(m.net) }}
+          </div>
+        </div>
+      }
+    </div>
+  </div>
 }
