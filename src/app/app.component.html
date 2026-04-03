@@ -1,0 +1,27 @@
+<div class="shell">
+
+  <header class="topbar">
+    <div class="logo">Financial Dashboard</div>
+
+    <nav>
+      <button [class.active]="activePage==='overview'"     (click)="setPage('overview')">Overview</button>
+      <button [class.active]="activePage==='transactions'" (click)="setPage('transactions')">Transactions</button>
+      <button [class.active]="activePage==='insights'"     (click)="setPage('insights')">Insights</button>
+    </nav>
+
+    <div class="right">
+      <label>Role:
+        <select (change)="setRole($event)">
+          <option value="Admin">Admin</option>
+          <option value="Viewer">Viewer</option>
+        </select>
+      </label>
+      <button (click)="exportCSV()">Export CSV</button>
+    </div>
+  </header>
+
+  <main>
+    <app-dashboard [page]="activePage"></app-dashboard>
+  </main>
+
+</div>
